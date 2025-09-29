@@ -1,24 +1,31 @@
 #include <stdio.h>
 #include <math.h>
-
+// IMPORTANTE: hacer que los arrays aumenten de tamaño según la cantidad de líneas en los txt
 typedef struct
 {
   int x, y;
   char c;
 } P;
 
-void myFunction(P *arr, int lineas, P *puntos) // Crear ciclo para que que se evalúe la distancia con los demás puntos. usar lines
+void myFunction(P *arr, int lineas, P *puntos, int lines)
 {
   printf("\n*******************************************************************\n\n");
-  for (int i = 0; i < lineas; i++)
+  for (int n = 0; n < lineas; n++)
   {
+    if (n != 0)
+    {
+      printf("\n");
+    }
 
-    double x = arr[i].x - puntos[0].x;
-    double y = arr[i].y - puntos[0].y;
+    for (int m = 0; m < lines; m++)
+    {
+      double x = arr[n].x - puntos[m].x;
+      double y = arr[n].y - puntos[m].y;
 
-    double distancia = hypot(x, y);
+      double distancia = hypot(x, y);
 
-    printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[i].x, arr[i].y, puntos[0].x, puntos[0].y, distancia);
+      printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[n].x, arr[n].y, puntos[m].x, puntos[m].y, distancia);
+    }
   }
   printf("\n*******************************************************************\n");
 }
@@ -56,7 +63,7 @@ int main()
 
   //--------------------------------------------------------------------------------------
 
-  P puntos[1];
+  P puntos[4];
   // Selección de archivo de PUNTOS
   FILE *g = fopen("puntos.txt", "r");
   if (!g)
@@ -85,7 +92,7 @@ int main()
   }
   printf("________________________________________\n");
 
-  myFunction(arr, lineas, puntos);
+  myFunction(arr, lineas, puntos, lines);
 
   return 0;
 }
