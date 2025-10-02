@@ -14,7 +14,7 @@ typedef struct
   char clase;
 } D;
 
-void evaluarDistancias(P *arr, int lineas, P *puntos, int lines)
+void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasClases, int cantidadDistancias)
 {
   double distancia;
   // int cantidadDistancias = lines * lineas;
@@ -53,7 +53,7 @@ void knn(D *distanciasClases, int lineas, int lines)
   double temp;
   for (int n = 0; n < lineas; n++)
   {
-    printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
+    // printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
 
     for (int m = 0; m < lines; m++)
     {
@@ -136,7 +136,7 @@ int main()
   int cantidadDistancias = lines * lineas;
   D distanciasClases[cantidadDistancias];
 
-  evaluarDistancias(arr, lineas, puntos, lines);
+  evaluarDistancias(arr, lineas, puntos, lines, distanciasClases, cantidadDistancias);
   knn(distanciasClases, lineas, lines);
 
   return 0;
