@@ -37,7 +37,7 @@ void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasCl
       distanciasClases[a].clase = arr[n].c;
 
       printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[n].x, arr[n].y, puntos[m].x, puntos[m].y, distancia);
-      printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[a].distanciaComparada, distanciasClases[n].clase);
+      // printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[a].distanciaComparada, distanciasClases[n].clase);
       a++;
     }
   }
@@ -48,12 +48,16 @@ void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasCl
 void knn(D *distanciasClases, int lineas, int lines, int cantidadDistancias)
 {
 
-  printf("\nContenido del array 'todo':\n");
+  printf("\n  Arreglo de distancia y su clase \n\n");
+
   for (int k = 0; k < 24; k++)
   {
-    printf("(%lf, %c)\n", distanciasClases[k].distanciaComparada, distanciasClases[k].clase);
+    printf("\t(%lf, %c)\n", distanciasClases[k].distanciaComparada, distanciasClases[k].clase);
   }
   printf("\n");
+
+  /*DIVIDIR por clase cada número de PUNTOs y elegir el número menor.
+  Por ejemplo: cada 3 líneas con 0, elegir la distancia menor*/
   //---------------------------------------------------------
   // for (int i = 0; i < lineas; i++)
   // {
