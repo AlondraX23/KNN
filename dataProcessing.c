@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 // IMPORTANTE: hacer que los arrays aumenten de tamaño según la cantidad de líneas en los txt
 typedef struct
 {
@@ -7,27 +8,66 @@ typedef struct
   char c;
 } P;
 
-void myFunction(P *arr, int lineas, P *puntos, int lines)
+typedef struct
 {
+  double distanciaComparada;
+  char clase;
+} D;
+
+void evaluarDistancias(P *arr, int lineas, P *puntos, int lines)
+{
+  double distancia;
+  // int cantidadDistancias = lines * lineas;
+  // D distanciasClases[cantidadDistancias];
   printf("\n*******************************************************************\n\n");
   for (int n = 0; n < lineas; n++)
   {
-    if (n != 0)
+    if (n != 0) // Espacio entre coordenadas con un punto
     {
       printf("\n");
     }
-
+    distanciasClases[n].clase = arr[n].c;
     for (int m = 0; m < lines; m++)
     {
       double x = arr[n].x - puntos[m].x;
       double y = arr[n].y - puntos[m].y;
 
-      double distancia = hypot(x, y);
+      distancia = hypot(x, y);
+      distanciasClases[m].distanciaComparada = distancia;
 
       printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[n].x, arr[n].y, puntos[m].x, puntos[m].y, distancia);
+      printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[m].distanciaComparada, distanciasClases[n].clase);
     }
   }
+  // int i = lineas * lines;
+  // do
+  // {
+  //   distanciasClases[i].distanciaComparada = distancia;
+  //   i--;
+  // } while (i = 0);
   printf("\n*******************************************************************\n");
+}
+
+void knn(D *distanciasClases, int lineas, int lines)
+{
+  double temp;
+  for (int n = 0; n < lineas; n++)
+  {
+    printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
+
+    for (int m = 0; m < lines; m++)
+    {
+      printf("%lf, %c \n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
+      // if (distanciasClases[m].distanciaComparada > distanciasClases[m + 1].distanciaComparada)
+      // {
+      //   temp = distanciasClases[m].distanciaComparada;
+      //   distanciasClases[m].distanciaComparada = distanciasClases[m + 1].distanciaComparada;
+      //   distanciasClases[m + 1].distanciaComparada = temp;
+      // }
+
+      // printf("\n  distancia mayor es (%lf, %c)  \n\n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
+    }
+  }
 }
 
 int main()
@@ -92,7 +132,12 @@ int main()
   }
   printf("________________________________________\n");
 
-  myFunction(arr, lineas, puntos, lines);
+  // Tamaño de arreglo para distancia y clases
+  int cantidadDistancias = lines * lineas;
+  D distanciasClases[cantidadDistancias];
+
+  evaluarDistancias(arr, lineas, puntos, lines);
+  knn(distanciasClases, lineas, lines);
 
   return 0;
 }
