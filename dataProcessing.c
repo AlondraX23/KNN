@@ -17,8 +17,8 @@ typedef struct
 void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasClases, int cantidadDistancias)
 {
   double distancia;
-  // int cantidadDistancias = lines * lineas;
-  // D distanciasClases[cantidadDistancias];
+  int indice = 0;
+  int a = 0;
   printf("\n*******************************************************************\n\n");
   for (int n = 0; n < lineas; n++)
   {
@@ -26,48 +26,61 @@ void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasCl
     {
       printf("\n");
     }
-    distanciasClases[n].clase = arr[n].c;
     for (int m = 0; m < lines; m++)
     {
       double x = arr[n].x - puntos[m].x;
       double y = arr[n].y - puntos[m].y;
 
       distancia = hypot(x, y);
-      distanciasClases[m].distanciaComparada = distancia;
+
+      distanciasClases[a].distanciaComparada = distancia;
+      distanciasClases[a].clase = arr[n].c;
 
       printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[n].x, arr[n].y, puntos[m].x, puntos[m].y, distancia);
-      printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[m].distanciaComparada, distanciasClases[n].clase);
+      printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[a].distanciaComparada, distanciasClases[n].clase);
+      a++;
     }
   }
-  // int i = lineas * lines;
-  // do
-  // {
-  //   distanciasClases[i].distanciaComparada = distancia;
-  //   i--;
-  // } while (i = 0);
+
   printf("\n*******************************************************************\n");
 }
 
-void knn(D *distanciasClases, int lineas, int lines)
+void knn(D *distanciasClases, int lineas, int lines, int cantidadDistancias)
 {
-  double temp;
-  for (int n = 0; n < lineas; n++)
+
+  printf("\nContenido del array 'todo':\n");
+  for (int k = 0; k < 24; k++)
   {
-    // printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
-
-    for (int m = 0; m < lines; m++)
-    {
-      printf("%lf, %c \n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
-      // if (distanciasClases[m].distanciaComparada > distanciasClases[m + 1].distanciaComparada)
-      // {
-      //   temp = distanciasClases[m].distanciaComparada;
-      //   distanciasClases[m].distanciaComparada = distanciasClases[m + 1].distanciaComparada;
-      //   distanciasClases[m + 1].distanciaComparada = temp;
-      // }
-
-      // printf("\n  distancia mayor es (%lf, %c)  \n\n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
-    }
+    printf("(%lf, %c)\n", distanciasClases[k].distanciaComparada, distanciasClases[k].clase);
   }
+  printf("\n");
+  //---------------------------------------------------------
+  // for (int i = 0; i < lineas; i++)
+  // {
+  //   for (int j = 0; j < lines; j++)
+  //   {
+  //     printf("(%lf, %c)\n", distanciasClases[j].distanciaComparada, distanciasClases[j].clase);
+  //   }
+  // }
+
+  // double temp;
+  // for (int n = 0; n < lineas; n++)
+  // {
+  //   // printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
+
+  //   for (int m = 0; m < lines; m++)
+  //   {
+  //     printf("%lf, %c \n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
+  //     // if (distanciasClases[m].distanciaComparada > distanciasClases[m + 1].distanciaComparada)
+  //     // {
+  //     //   temp = distanciasClases[m].distanciaComparada;
+  //     //   distanciasClases[m].distanciaComparada = distanciasClases[m + 1].distanciaComparada;
+  //     //   distanciasClases[m + 1].distanciaComparada = temp;
+  //     // }
+
+  //     // printf("\n  distancia mayor es (%lf, %c)  \n\n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
+  //   }
+  // }
 }
 
 int main()
@@ -137,7 +150,7 @@ int main()
   D distanciasClases[cantidadDistancias];
 
   evaluarDistancias(arr, lineas, puntos, lines, distanciasClases, cantidadDistancias);
-  knn(distanciasClases, lineas, lines);
+  knn(distanciasClases, lineas, lines, cantidadDistancias);
 
   return 0;
 }
