@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include <stdlib.h>
+#include <stdlib.h> //malloc
 // IMPORTANTE: hacer que los arrays aumenten de tamaño según la cantidad de líneas en los txt
 typedef struct
 {
@@ -17,7 +17,6 @@ typedef struct
 void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasClases, int cantidadDistancias)
 {
   double distancia;
-  int indice = 0;
   int a = 0;
   printf("\n*******************************************************************\n\n");
   for (int n = 0; n < lineas; n++)
@@ -45,27 +44,53 @@ void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasCl
   printf("\n*******************************************************************\n");
 }
 
-void knn(D *distanciasClases, int lineas, int lines, int cantidadDistancias)
+void knn(D *distanciasClases, int lineas, int lines, int cantidadDistancias, D *porPunto, D *perteneceClase)
 {
 
   printf("\n  Arreglo de distancia y su clase \n\n");
 
-  for (int k = 0; k < 24; k++)
+  for (int k = 0; k < cantidadDistancias; k++) // imprimir todo el arreglo
   {
     printf("\t(%lf, %c)\n", distanciasClases[k].distanciaComparada, distanciasClases[k].clase);
   }
   printf("\n");
+  //-------------------------------------------------------------
+  int evaluarPorClase = cantidadDistancias / lineas;
+  // printf("%d\n", evaluarPorClase);
+
+  int h;
+  int a = 0;
+  for (int k = 0; k < evaluarPorClase; k++)
+  {
+    h = k;
+    printf("%i", h);
+    for (h; h < cantidadDistancias; h += evaluarPorClase)
+    {
+      porPunto[a].distanciaComparada = distanciasClases[h].distanciaComparada;
+      porPunto[a].clase = distanciasClases[h].clase;
+
+      // printf("\t(%lf, %c)\n", distanciasClases[h].distanciaComparada, distanciasClases[h].clase);
+      // printf("\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
+
+      // if (distanciasClases[a].distanciaComparada > distanciasClases[a + 1].distanciaComparada)
+      // {
+      //   temp = distanciasClases[a].distanciaComparada;
+      //   distanciasClases[a].distanciaComparada = distanciasClases[a + 1].distanciaComparada;
+      //   distanciasClases[a + 1].distanciaComparada = temp;
+      // }
+      printf("\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
+    }
+    porPunto[a].distanciaComparada = 0;
+    porPunto[a].clase = 0;
+
+    a++;
+    printf("\n");
+  }
+  //------------------------------------------------------------------------------------
 
   /*DIVIDIR por clase cada número de PUNTOs y elegir el número menor.
   Por ejemplo: cada 3 líneas con 0, elegir la distancia menor*/
   //---------------------------------------------------------
-  // for (int i = 0; i < lineas; i++)
-  // {
-  //   for (int j = 0; j < lines; j++)
-  //   {
-  //     printf("(%lf, %c)\n", distanciasClases[j].distanciaComparada, distanciasClases[j].clase);
-  //   }
-  // }
 
   // double temp;
   // for (int n = 0; n < lineas; n++)
@@ -149,12 +174,17 @@ int main()
   }
   printf("________________________________________\n");
 
+  //______________________________________________________________________
   // Tamaño de arreglo para distancia y clases
   int cantidadDistancias = lines * lineas;
   D distanciasClases[cantidadDistancias];
 
+  // Tamaño de arreglo para distancias a un punto
+  D porPunto[lineas];      // 8 espacios (distancia, clase). La distancia menor e guarda en perteneceClase[lines]
+  D perteneceClase[lines]; // 3 espacios. Se guarda la pura clase.
+
   evaluarDistancias(arr, lineas, puntos, lines, distanciasClases, cantidadDistancias);
-  knn(distanciasClases, lineas, lines, cantidadDistancias);
+  knn(distanciasClases, lineas, lines, cantidadDistancias, porPunto, perteneceClase);
 
   return 0;
 }
