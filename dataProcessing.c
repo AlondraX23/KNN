@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> //malloc
+#include <string.h> //memcpy
 // IMPORTANTE: hacer que los arrays aumenten de tamaño según la cantidad de líneas en los txt
 typedef struct
 {
@@ -36,7 +37,6 @@ double evaluarDistancias(P *arrClases, int lineasClases, P *arrPuntos, int linea
       arrDistancias[a].clase = arrClases[n].c;
 
       printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arrClases[n].x, arrClases[n].y, arrPuntos[m].x, arrPuntos[m].y, distancia);
-      // printf("  Arreglo de distancias (%lf, %c)  \n", arrDistancias[a].distanciaComparada, arrDistancias[n].clase);
       a++;
     }
   }
@@ -62,6 +62,16 @@ int numLineasClases(FILE *clases)
     if (fgetc(clases) != EOF)
     {
       lineas = 1;
+    }
+  }
+  else
+  {
+    rewind(clases);
+    while ((saltoLinea = fgetc(clases)) != EOF)
+      ;
+    if (saltoLinea != '\n' && lineas > 0)
+    {
+      lineas++;
     }
   }
 
@@ -96,19 +106,10 @@ int numLineasPuntos(FILE *archivoPuntos)
   fclose(archivoPuntos);
 }
 
-double knn(D *arrDistancias, int lineasClases, int lineasPuntos, int tamanoDistancias, D *porPunto, D *perteneceClase, D *arrDistReordenamiento)
+double reordenamientoPorPunto(D *arrDistancias, int lineasClases, int lineasPuntos, int tamanoDistancias, D *porPunto, D *perteneceClase, D *arrDistReordenamiento, P *arrPuntos)
 {
-
-  printf("\n  Arreglo de distancia y su clase \n\n");
-
-  for (int k = 0; k < tamanoDistancias; k++) // imprimir todo el arreglo
-  {
-    printf("\t(%lf, %c)\n", arrDistancias[k].distanciaComparada, arrDistancias[k].clase);
-  }
-  printf("\n");
   //-------------------------------------------------------------
-  int evaluarPorClase = tamanoDistancias / lineasClases;
-  // printf("%d\n", evaluarPorClase);
+  printf("\n  Arreglo de distancia y su clase por punto evaluado \n\t____________________________\n\n        Punto     Distancia\n");
 
   int h;
   int a = 0;
@@ -117,51 +118,57 @@ double knn(D *arrDistancias, int lineasClases, int lineasPuntos, int tamanoDista
   for (int k = 0; k < 3; k++)
   {
     h = k;
-    // printf("%i", h);
-    for (h; h < tamanoDistancias; h += evaluarPorClase)
+    printf("\t____________________________\n\n\t(%d %d)\n", arrPuntos[k].x, arrPuntos[k].y);
+    for (h; h < tamanoDistancias; h += lineasPuntos)
     {
       porPunto[a].distanciaComparada = arrDistancias[h].distanciaComparada;
       porPunto[a].clase = arrDistancias[h].clase;
-      printf("\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
-
-      // for (int l = lineasClases; l > 0; l--)
-      // {
-      //   for (int n = 0; n < l; n++)
-      //   {
-      //     printf("%f", porPunto[n].distanciaComparada);
-      // if (porPunto[n].distanciaComparada > porPunto[n + 1].distanciaComparada)
-      // {
-      //   temp = porPunto[n].distanciaComparada;
-      //   porPunto[n].distanciaComparada = porPunto[n + 1].distanciaComparada;
-      //   porPunto[n + 1].distanciaComparada = temp;
-      //   // printf("%f", porPunto[n].distanciaComparada);
-      //   perteneceClase[b].distanciaComparada = porPunto[n].distanciaComparada;
-      //   printf("%f", perteneceClase[b].distanciaComparada);
-      // }
-      //   }
-      // }
+      printf("\t\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
 
       arrDistReordenamiento[b].distanciaComparada = arrDistancias[h].distanciaComparada; // Reordenar resoecto al punto evaludo
       arrDistReordenamiento[b].clase = arrDistancias[h].clase;
       b++;
     }
-
     a++;
-
-    printf("\n");
   }
-  //------------------------------------------------------------------------------------
-  printf("\n  Arreglo de distancia y su clase respecto a un punto \n\n");
+  printf("\n\t____________________________\n");
+}
+
+void knn(D *arrDistReordenamiento, int tamanoDistancias, int lineasPuntos, int lineasClases)
+{
+  printf("\n  Reordenamiento de arrDistancias \n\n");
 
   for (int k = 0; k < tamanoDistancias; k++) // imprimir todo el arreglo
   {
     printf("\t(%lf, %c)\n", arrDistReordenamiento[k].distanciaComparada, arrDistReordenamiento[k].clase);
   }
   printf("\n");
+  //---------------------------------------------------------------------------
+  int numSubarrays = lineasPuntos; // número de subarrays
 
-  /*DIVIDIR por clase cada número de PUNTOs y elegir el número menor.
-  Por ejemplo: cada 3 líneas con 0, elegir la distancia menor*/
-  //---------------------------------------------------------
+  for (int i = 0; i < numSubarrays; i++)
+  {
+    int *subarray = (int *)malloc(lineasClases * sizeof(int));
+    if (subarray == NULL)
+    {
+      printf("Error al asignar memoria.\n");
+      return;
+    }
+
+    memcpy(subarray, &arrDistReordenamiento[i * lineasPuntos], lineasPuntos * sizeof(int));
+
+    // Imprime el sub-array (para demostrar que funcionó)
+    printf("Sub-array %d: ", i + 1);
+
+    for (int j = 0; j < lineasPuntos; j++)
+    {
+      printf("%d ", subarray[j]);
+    }
+    printf("\n");
+
+    // Libera la memoria reservada para el sub-array
+    free(subarray);
+  }
 }
 
 int main() // gcc dataProcessing.c -o d -lm
@@ -223,12 +230,12 @@ int main() // gcc dataProcessing.c -o d -lm
   D arrDistancias[tamanoDistancias];
   D arrDistReordenamiento[tamanoDistancias];
 
-  // // Tamaño de arreglo para distancias a un punto
-  D porPunto[lineasClases];       // 8 espacios (distancia, clase). La distancia menor e guarda en perteneceClase[lines]
+  // Tamaño de arreglo para distancias a un punto
+  D porPunto[lineasClases];       // 8 espacios (distancia, clase)
   D perteneceClase[lineasPuntos]; // 3 espacios. Se guarda la pura clase.
 
   evaluarDistancias(arrClases, lineasClases, arrPuntos, lineasPuntos, arrDistancias, tamanoDistancias);
-  knn(arrDistancias, lineasClases, lineasPuntos, tamanoDistancias, porPunto, perteneceClase, arrDistReordenamiento);
-
+  reordenamientoPorPunto(arrDistancias, lineasClases, lineasPuntos, tamanoDistancias, porPunto, perteneceClase, arrDistReordenamiento, arrPuntos);
+  knn(arrDistReordenamiento, tamanoDistancias, lineasPuntos, lineasClases);
   return 0;
 }
