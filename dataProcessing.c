@@ -14,29 +14,29 @@ typedef struct
   char clase;
 } D;
 
-void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasClases, int cantidadDistancias)
+double evaluarDistancias(P *arrClases, int lineasClases, P *arrPuntos, int lineasPuntos, D *arrDistancias, int tamanoDistancias)
 {
   double distancia;
   int a = 0;
   printf("\n*******************************************************************\n\n");
-  for (int n = 0; n < lineas; n++)
+  for (int n = 0; n < lineasClases; n++)
   {
     if (n != 0) // Espacio entre coordenadas con un punto
     {
       printf("\n");
     }
-    for (int m = 0; m < lines; m++)
+    for (int m = 0; m < lineasPuntos; m++)
     {
-      double x = arr[n].x - puntos[m].x;
-      double y = arr[n].y - puntos[m].y;
+      double x = arrClases[n].x - arrPuntos[m].x;
+      double y = arrClases[n].y - arrPuntos[m].y;
 
       distancia = hypot(x, y);
 
-      distanciasClases[a].distanciaComparada = distancia;
-      distanciasClases[a].clase = arr[n].c;
+      arrDistancias[a].distanciaComparada = distancia;
+      arrDistancias[a].clase = arrClases[n].c;
 
-      printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arr[n].x, arr[n].y, puntos[m].x, puntos[m].y, distancia);
-      // printf("  Arreglo de distancias (%lf, %c)  \n", distanciasClases[a].distanciaComparada, distanciasClases[n].clase);
+      printf("  La distancia entre los puntos (%d, %d) y (%d, %d) es %lf\n", arrClases[n].x, arrClases[n].y, arrPuntos[m].x, arrPuntos[m].y, distancia);
+      // printf("  Arreglo de distancias (%lf, %c)  \n", arrDistancias[a].distanciaComparada, arrDistancias[n].clase);
       a++;
     }
   }
@@ -44,147 +44,191 @@ void evaluarDistancias(P *arr, int lineas, P *puntos, int lines, D *distanciasCl
   printf("\n*******************************************************************\n");
 }
 
-void knn(D *distanciasClases, int lineas, int lines, int cantidadDistancias, D *porPunto, D *perteneceClase)
+int numLineasClases(FILE *clases)
+{
+  clases = fopen("clases.txt", "r"); // Abrir archivo de CLASES
+  int lineas;
+  int saltoLinea;
+  while ((saltoLinea = fgetc(clases)) != EOF) // Lectura de líenas en CLASES
+  {
+    if (saltoLinea == '\n')
+    {
+      lineas++;
+    }
+  }
+  if (lineas == 0)
+  {
+    rewind(clases);
+    if (fgetc(clases) != EOF)
+    {
+      lineas = 1;
+    }
+  }
+
+  int totalLineas = lineas;
+  return totalLineas;
+  fclose(clases);
+}
+
+int numLineasPuntos(FILE *archivoPuntos)
+{
+  archivoPuntos = fopen("puntos.txt", "r");
+  int lineas;
+  int saltoLinea;
+  while ((saltoLinea = fgetc(archivoPuntos)) != EOF)
+  {
+    if (saltoLinea == '\n')
+    {
+      lineas++;
+    }
+  }
+  if (lineas == 0)
+  {
+    rewind(archivoPuntos);
+    if (fgetc(archivoPuntos) != EOF)
+    {
+      lineas = 1;
+    }
+  }
+
+  int totalLineas = lineas;
+  return totalLineas;
+  fclose(archivoPuntos);
+}
+
+double knn(D *arrDistancias, int lineasClases, int lineasPuntos, int tamanoDistancias, D *porPunto, D *perteneceClase, D *arrDistReordenamiento)
 {
 
   printf("\n  Arreglo de distancia y su clase \n\n");
 
-  for (int k = 0; k < cantidadDistancias; k++) // imprimir todo el arreglo
+  for (int k = 0; k < tamanoDistancias; k++) // imprimir todo el arreglo
   {
-    printf("\t(%lf, %c)\n", distanciasClases[k].distanciaComparada, distanciasClases[k].clase);
+    printf("\t(%lf, %c)\n", arrDistancias[k].distanciaComparada, arrDistancias[k].clase);
   }
   printf("\n");
   //-------------------------------------------------------------
-  int evaluarPorClase = cantidadDistancias / lineas;
+  int evaluarPorClase = tamanoDistancias / lineasClases;
   // printf("%d\n", evaluarPorClase);
 
   int h;
   int a = 0;
-  for (int k = 0; k < evaluarPorClase; k++)
+  int b = 0;
+  double temp;
+  for (int k = 0; k < 3; k++)
   {
     h = k;
-    printf("%i", h);
-    for (h; h < cantidadDistancias; h += evaluarPorClase)
+    // printf("%i", h);
+    for (h; h < tamanoDistancias; h += evaluarPorClase)
     {
-      porPunto[a].distanciaComparada = distanciasClases[h].distanciaComparada;
-      porPunto[a].clase = distanciasClases[h].clase;
-
-      // printf("\t(%lf, %c)\n", distanciasClases[h].distanciaComparada, distanciasClases[h].clase);
-      // printf("\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
-
-      // if (distanciasClases[a].distanciaComparada > distanciasClases[a + 1].distanciaComparada)
-      // {
-      //   temp = distanciasClases[a].distanciaComparada;
-      //   distanciasClases[a].distanciaComparada = distanciasClases[a + 1].distanciaComparada;
-      //   distanciasClases[a + 1].distanciaComparada = temp;
-      // }
+      porPunto[a].distanciaComparada = arrDistancias[h].distanciaComparada;
+      porPunto[a].clase = arrDistancias[h].clase;
       printf("\t(%lf, %c)\n", porPunto[a].distanciaComparada, porPunto[a].clase);
+
+      // for (int l = lineasClases; l > 0; l--)
+      // {
+      //   for (int n = 0; n < l; n++)
+      //   {
+      //     printf("%f", porPunto[n].distanciaComparada);
+      // if (porPunto[n].distanciaComparada > porPunto[n + 1].distanciaComparada)
+      // {
+      //   temp = porPunto[n].distanciaComparada;
+      //   porPunto[n].distanciaComparada = porPunto[n + 1].distanciaComparada;
+      //   porPunto[n + 1].distanciaComparada = temp;
+      //   // printf("%f", porPunto[n].distanciaComparada);
+      //   perteneceClase[b].distanciaComparada = porPunto[n].distanciaComparada;
+      //   printf("%f", perteneceClase[b].distanciaComparada);
+      // }
+      //   }
+      // }
+
+      arrDistReordenamiento[b].distanciaComparada = arrDistancias[h].distanciaComparada; // Reordenar resoecto al punto evaludo
+      arrDistReordenamiento[b].clase = arrDistancias[h].clase;
+      b++;
     }
-    porPunto[a].distanciaComparada = 0;
-    porPunto[a].clase = 0;
 
     a++;
+
     printf("\n");
   }
   //------------------------------------------------------------------------------------
+  printf("\n  Arreglo de distancia y su clase respecto a un punto \n\n");
+
+  for (int k = 0; k < tamanoDistancias; k++) // imprimir todo el arreglo
+  {
+    printf("\t(%lf, %c)\n", arrDistReordenamiento[k].distanciaComparada, arrDistReordenamiento[k].clase);
+  }
+  printf("\n");
 
   /*DIVIDIR por clase cada número de PUNTOs y elegir el número menor.
   Por ejemplo: cada 3 líneas con 0, elegir la distancia menor*/
   //---------------------------------------------------------
-
-  // double temp;
-  // for (int n = 0; n < lineas; n++)
-  // {
-  //   // printf("%lf, %c \n", distanciasClases[n].distanciaComparada, distanciasClases[n].clase);
-
-  //   for (int m = 0; m < lines; m++)
-  //   {
-  //     printf("%lf, %c \n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
-  //     // if (distanciasClases[m].distanciaComparada > distanciasClases[m + 1].distanciaComparada)
-  //     // {
-  //     //   temp = distanciasClases[m].distanciaComparada;
-  //     //   distanciasClases[m].distanciaComparada = distanciasClases[m + 1].distanciaComparada;
-  //     //   distanciasClases[m + 1].distanciaComparada = temp;
-  //     // }
-
-  //     // printf("\n  distancia mayor es (%lf, %c)  \n\n", distanciasClases[m].distanciaComparada, distanciasClases[m].clase);
-  //   }
-  // }
 }
 
-int main()
+int main() // gcc dataProcessing.c -o d -lm
 {
-  P arr[10];
-  // Selección de archivo de CLASES
-  FILE *f = fopen("clases.txt", "r");
-  if (!f)
+  FILE *clases;
+  clases = fopen("clases.txt", "r"); // Abrir archivo de CLASES
+
+  if (!clases) // Mensaje de erro al leer el archivo CLASE
   {
     printf("El archivo de COORDENADAS no existe o la dirección es incorrecta");
     return 1;
   }
-  printf("________________________________________\n\n");
-  // Lectura de coordenadas
-  int a = 0;
-  while (fscanf(f, "%d %d %c ", &arr[a].x, &arr[a].y, &arr[a].c) == 3)
-  {
-    a++;
-  }
-  {
-    printf("  COORDENADAS: %d datos leidos \n\n", a);
-  }
 
-  // Numero de líneas en el archivo
-  int lineas = a;
+  int lineasClases = numLineasClases(clases); // Obtener el número de líneas en el archivo
 
-  // Imprimir coordenadas y clase
-  for (int i = 0; i < a; ++i)
+  rewind(clases); // Para que leea desde el inicio del archivo CLASES
+
+  P arrClases[lineasClases]; // Establecer el tamaño del array
+
+  printf("________________________________________\n\n   COORDENADAS: %d datos leidos\n\n", lineasClases);
+  for (int a = 0; a < lineasClases; a++) // Lectura y llenado del array
   {
-    printf("\t(%d, %d) \tclase: %c \n", arr[i].x, arr[i].y, arr[i].c);
+    (fscanf(clases, "%d %d %c ", &arrClases[a].x, &arrClases[a].y, &arrClases[a].c)); // Agregar un if para que llene la línea si están los 3 valores
+    printf("\t(%d, %d) \tclase: %c \n", arrClases[a].x, arrClases[a].y, arrClases[a].c);
   }
   printf("\n________________________________________\n");
 
-  //--------------------------------------------------------------------------------------
+  fclose(clases);
+  //----------------------------------------------------------------------------------
 
-  P puntos[4];
-  // Selección de archivo de PUNTOS
-  FILE *g = fopen("puntos.txt", "r");
-  if (!g)
+  FILE *archivoPuntos; // Selección de archivo de PUNTOS
+
+  archivoPuntos = fopen("puntos.txt", "r");
+  if (!archivoPuntos)
   {
     printf("Archivo de PUNTOS DE COMPARACIÓN no existe o la dirección es incorrecta");
     return 1;
   }
 
-  // Lectura de punto
-  int b = 0;
-  while (fscanf(g, "%d %d ", &puntos[b].x, &puntos[b].y) == 2)
-  {
-    b++;
-  }
-  {
-    printf("\n  PUNTOS: %d datos leidos\n\n", b);
-  }
+  int lineasPuntos = numLineasPuntos(archivoPuntos); // Obtener el número de líneas en el archivo
 
-  // Numero de líneas en el archivo
-  int lines = b;
+  rewind(archivoPuntos);
 
-  // Imprimir coordenadas y clase
-  for (int j = 0; j < b; ++j)
+  P arrPuntos[lineasPuntos]; // Establecer el tamaño del array
+
+  printf("\n   PUNTOS: %d datos leidos\n\n", lineasPuntos);
+  for (int a = 0; a < lineasPuntos; a++) // Lectura y llenado del array
   {
-    printf("\t(%d, %d) \n", puntos[j].x, puntos[j].y);
+    (fscanf(archivoPuntos, "%d %d ", &arrPuntos[a].x, &arrPuntos[a].y));
+    printf("\t(%d, %d)\n", arrPuntos[a].x, arrPuntos[a].y);
   }
-  printf("________________________________________\n");
+  printf("\n________________________________________\n");
+
+  fclose(archivoPuntos);
 
   //______________________________________________________________________
   // Tamaño de arreglo para distancia y clases
-  int cantidadDistancias = lines * lineas;
-  D distanciasClases[cantidadDistancias];
+  int tamanoDistancias = lineasClases * lineasPuntos;
+  D arrDistancias[tamanoDistancias];
+  D arrDistReordenamiento[tamanoDistancias];
 
-  // Tamaño de arreglo para distancias a un punto
-  D porPunto[lineas];      // 8 espacios (distancia, clase). La distancia menor e guarda en perteneceClase[lines]
-  D perteneceClase[lines]; // 3 espacios. Se guarda la pura clase.
+  // // Tamaño de arreglo para distancias a un punto
+  D porPunto[lineasClases];       // 8 espacios (distancia, clase). La distancia menor e guarda en perteneceClase[lines]
+  D perteneceClase[lineasPuntos]; // 3 espacios. Se guarda la pura clase.
 
-  evaluarDistancias(arr, lineas, puntos, lines, distanciasClases, cantidadDistancias);
-  knn(distanciasClases, lineas, lines, cantidadDistancias, porPunto, perteneceClase);
+  evaluarDistancias(arrClases, lineasClases, arrPuntos, lineasPuntos, arrDistancias, tamanoDistancias);
+  knn(arrDistancias, lineasClases, lineasPuntos, tamanoDistancias, porPunto, perteneceClase, arrDistReordenamiento);
 
   return 0;
 }
